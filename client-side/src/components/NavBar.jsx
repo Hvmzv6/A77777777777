@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material";
 import MuiAppBar from "@mui/material/AppBar";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CustomIconButton from "./CustomIconButton";
 import DarkModeButton from "./DarkModeButton";
@@ -59,6 +59,7 @@ const NavBar = ({ drawerWidth, open, handleDrawerOpen }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("authToken");
+    localStorage.removeItem("userId");
     navigate("/");
     handleClose();
   };

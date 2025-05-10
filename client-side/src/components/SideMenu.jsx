@@ -2,6 +2,7 @@ import { ChevronRightOutlined, SchoolRounded } from "@mui/icons-material";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import FolderCopyIcon from "@mui/icons-material/FolderCopy";
 import GroupIcon from "@mui/icons-material/Group";
+import GroupsIcon from "@mui/icons-material/Groups";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import ScheduleSendIcon from "@mui/icons-material/ScheduleSend";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
@@ -16,7 +17,7 @@ import {
   styled,
   useTheme,
 } from "@mui/material";
-import React, { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { LiaChalkboardTeacherSolid } from "react-icons/lia";
 import { useLocation, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
@@ -105,6 +106,12 @@ const navItemsByRole = {
       icon: <BarChartIcon />,
       lcText: "dashboard",
       url: "dashboard",
+    },
+    {
+      text: "participants",
+      icon: <GroupsIcon />,
+      lcText: "participants",
+      url: "participants",
     },
     {
       text: "training request",

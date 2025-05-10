@@ -1,5 +1,4 @@
 import { Button } from "@mui/material";
-import React from "react";
 
 const CustomButton = ({
   children,
@@ -7,6 +6,7 @@ const CustomButton = ({
   color = "primary",
   size = "medium",
   onClick,
+  type,
   disabled = false,
   sx = {},
   ...props
@@ -16,6 +16,7 @@ const CustomButton = ({
       variant={variant}
       color={color}
       size={size}
+      type={type}
       onClick={onClick}
       disabled={disabled}
       sx={{
