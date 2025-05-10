@@ -6,6 +6,8 @@ import {
   handleClearSelectedAction,
   handleSelectAction,
   updateTraining,
+  getTrainingByClient,
+  getTrainingByTrainer,
 } from "./action";
 
 const initialState = {
@@ -77,6 +79,32 @@ const trainingReducer = createSlice({
         state.loading = false;
       })
       .addCase(updateTraining.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+    builder
+      .addCase(getTrainingByClient.pending, (state) => {
+        state.loading = true;
+        state.error = undefined;
+      })
+      .addCase(getTrainingByClient.fulfilled, (state, action) => {
+        state.selected = action.payload;
+        state.loading = false;
+      })
+      .addCase(getTrainingByClient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+    builder
+      .addCase(getTrainingByTrainer.pending, (state) => {
+        state.loading = true;
+        state.error = undefined;
+      })
+      .addCase(getTrainingByTrainer.fulfilled, (state, action) => {
+        state.selected = action.payload;
+        state.loading = false;
+      })
+      .addCase(getTrainingByTrainer.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -1,10 +1,11 @@
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
-import React, { Suspense, useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import SpinnerFullPage from "./components/SpinnerFullPage";
 import "./index.css";
+import TrainingRequest from "./pages/client/TrainingRequest";
 import Dashboard from "./pages/dashboards/Dashboard";
 import Evaluations from "./pages/Evaluations";
 import Layout from "./pages/Layout";
@@ -14,7 +15,6 @@ import Notifications from "./pages/Notifications";
 import Profile from "./pages/Profile";
 import Programs from "./pages/Programs";
 import Theme from "./pages/Theme";
-import TrainingRequest from "./pages/TrainingRequest";
 import Users from "./pages/Users";
 import { themeSettings } from "./theme";
 

@@ -103,6 +103,46 @@ export const updateTraining = createAsyncThunk(
     }
   }
 );
+export const getTrainingByClient = createAsyncThunk(
+  "GET-TRAINING-BY-CLIENT",
+  async (clientId, { rejectWithValue }) => {
+    try {
+      const JwtToken = window.localStorage.getItem("authToken");
+      const response = await axios.get(
+        `http://localhost:5000/api/trainings/client/${clientId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${JwtToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+export const getTrainingByTrainer = createAsyncThunk(
+  "GET-TRAINING-BY-TRAINER",
+  async (trainerId, { rejectWithValue }) => {
+    try {
+      const JwtToken = window.localStorage.getItem("authToken");
+      const response = await axios.get(
+        `http://localhost:5000/api/trainings/trainer/${trainerId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${JwtToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 export const handleSelectAction = (state, action) => {
   const findSelected = state.data.find((s) => s.id === action.payload.key);
