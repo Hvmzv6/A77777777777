@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
-import React, { useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import * as z from "zod";
@@ -75,6 +75,7 @@ const Login = () => {
       const role = decodedToken.role;
       // Save token to localStorage
       localStorage.setItem("authToken", token);
+      localStorage.setItem("userId", decodedToken.id);
       localStorage.setItem("userRole", role);
 
       // Dispatch login action to Redux store

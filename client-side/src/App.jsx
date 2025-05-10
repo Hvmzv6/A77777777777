@@ -12,6 +12,7 @@ import Layout from "./pages/Layout";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import Notifications from "./pages/Notifications";
+import Participants from "./pages/Participants";
 import Profile from "./pages/Profile";
 import Programs from "./pages/Programs";
 import Theme from "./pages/Theme";
@@ -39,6 +40,7 @@ function App() {
               <Route path="/evaluations" element={<Evaluations />} />
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/request-training" element={<TrainingRequest />} />
+              <Route path="/participants" element={<Participants />} />
             </Route>
           </Routes>
         </Suspense>

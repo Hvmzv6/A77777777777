@@ -17,7 +17,7 @@ const registerUser = async (req, res) => {
       email,
       password: hashedPassword,
       role,
-      mustChangePassword: mustChangePassword || false,
+      mustChangePassword: mustChangePassword || true,
     });
 
     const saved = await newUser.save();

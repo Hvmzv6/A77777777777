@@ -2,7 +2,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  user: null,
+  user: window.localStorage.getItem("userId") || "",
   mode: window.localStorage.getItem("mode") || "dark", // 🚀 Load saved mode, default to "dark"
 };
 

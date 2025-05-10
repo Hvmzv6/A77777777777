@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authSlice";
 import globalReducer from "./global/slice";
+import participantsReducer from "./participants/slice";
 import themeReducer from "./theme/slice";
 import trainingReducer from "./training/slice";
 import userReducer from "./user/slice";
@@ -12,6 +13,7 @@ const store = configureStore({
     usersReducer: userReducer,
     training: trainingReducer,
     themeReducer: themeReducer,
+    participantsReducer: participantsReducer,
   },
   middleware: (getDefaultMiddleware) => {
     return [

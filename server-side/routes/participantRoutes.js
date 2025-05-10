@@ -7,19 +7,20 @@ const {
   getParticipantsByProgram,
   updateParticipant,
   deleteParticipant,
+  getParticipantsByClient,
 } = require("../controllers/participantController");
 
 const authMiddleware = require("../middlewares/authMiddleware");
 const validateBody = require("../middlewares/validateBody");
 const {
-  participantValidation,
+  ParticipantValidation,
 } = require("../validations/participantValidation");
 
 // Create a new training session
 router.post(
   "/participants",
   authMiddleware.verifyToken, // Verify token
-  validateBody(participantValidation), // Validate request body
+  validateBody(ParticipantValidation), // Validate request body
   createParticipant
 );
 
@@ -41,7 +42,7 @@ router.get(
 router.put(
   "/participants/:id",
   authMiddleware.verifyToken, // Verify token
-  validateBody(participantValidation), // Validate request body
+  validateBody(ParticipantValidation), // Validate request body
   updateParticipant
 );
 
@@ -56,5 +57,9 @@ router.get(
   authMiddleware.verifyToken,
   getParticipantsByProgram
 );
-
+router.get(
+  "/clients/:clientId/participants",
+  authMiddleware.verifyToken, // Verify token
+  getParticipantsByClient
+);
 module.exports = router;
