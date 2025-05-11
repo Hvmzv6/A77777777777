@@ -1,14 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Typography } from "@mui/material";
-import { useCallback, useEffect, useMemo } from "react";
-import { useForm } from "react-hook-form";
-import { useDispatch, useSelector } from "react-redux";
-import * as z from "zod";
 import CustomButton from "../components/CustomButton";
 import CustomDrawer from "../components/CustomDrawer";
 import CustomIconButton from "../components/CustomIconButton";
@@ -16,162 +11,84 @@ import CustomMenuFilter from "../components/CustomMenuFilter";
 import CustomModal from "../components/CustomModal";
 import CustomTable from "../components/CustomTable";
 import RenderFormField from "../components/RenderFormField";
-import { useDrawer } from "../hooks/useDrawer";
-import { useModal } from "../hooks/useModal";
-import usePaginate from "../hooks/usePaginate";
-import { useSearch } from "../hooks/useSearch";
-import useSort from "../hooks/useSort";
-import {
-  addParticipant,
-  deleteParticipant,
-  getParticipants,
-  updateParticipant,
-} from "../store/participants/action";
+import { useParticipant } from "../hooks/useParticipant";
+import { deleteParticipant } from "../store/participants/action";
 
-// Fields for creating and updating Programs
-
-// Validation schemas
-const participantSchema = z.object({
-  fullName: z.string().nonempty({ message: "Full name is required" }),
-  sex: z.enum(["homme", "femme"], { message: "Sex is required" }),
-  matriculeCnss: z.string().nonempty({ message: "Matricule CNSS is required" }),
-  CIN: z
-    .string()
-    .nonempty({ message: "CIN is required" }) // Assuming CIN is a string
-    .length(8, { message: "CIN must be exactly 8 characters" }),
-  qualification: z.string().nonempty({ message: "Qualification is required" }),
-  lieuAffectation: z
-    .string()
-    .nonempty({ message: "Lieu d'Affectation is required" }),
-});
+const participantFields = [
+  {
+    name: "fullName",
+    label: "Full Name",
+    type: "text",
+    placeholder: "Enter participant full name",
+  },
+  {
+    name: "sex",
+    label: "Sex",
+    type: "select",
+    options: [
+      { label: "Homme", value: "homme" },
+      { label: "Femme", value: "femme" },
+    ],
+    placeholder: "Select sex",
+  },
+  {
+    name: "matriculeCnss",
+    label: "Matricule CNSS",
+    type: "text",
+    placeholder: "Enter participant CNSS matricule",
+  },
+  {
+    name: "CIN",
+    label: "CIN",
+    type: "text",
+    placeholder: "Enter participant CIN",
+  },
+  {
+    name: "qualification",
+    label: "Qualification",
+    type: "text",
+    placeholder: "Enter participant qualification",
+  },
+  {
+    name: "lieuAffectation",
+    label: "Lieu d'Affectation",
+    type: "text",
+    placeholder: "Enter participant location of assignment",
+  },
+];
 
 const Participants = () => {
-  const { loading, data } = useSelector((state) => state.participantsReducer);
-
-  const userId = useSelector((state) => state.global.user);
-  const participantFields = [
-    {
-      name: "fullName",
-      label: "Full Name",
-      type: "text",
-      placeholder: "Enter participant full name",
-    },
-    {
-      name: "sex",
-      label: "Sex",
-      type: "select",
-      options: [
-        { label: "Homme", value: "homme" },
-        { label: "Femme", value: "femme" },
-      ],
-      placeholder: "Select sex",
-    },
-    {
-      name: "matriculeCnss",
-      label: "Matricule CNSS",
-      type: "text",
-      placeholder: "Enter participant CNSS matricule",
-    },
-    {
-      name: "CIN",
-      label: "CIN",
-      type: "text",
-      placeholder: "Enter participant CIN",
-    },
-    {
-      name: "qualification",
-      label: "Qualification",
-      type: "text",
-      placeholder: "Enter participant qualification",
-    },
-    {
-      name: "lieuAffectation",
-      label: "Lieu d'Affectation",
-      type: "text",
-      placeholder: "Enter participant location of assignment",
-    },
-  ];
-
-  const dispatch = useDispatch();
-  const { open: drawerOpen, openDrawer, closeDrawer } = useDrawer();
-
-  const {
-    open: drawerUpdateOpen,
-    selectedId: drawerId,
-    openDrawer: openUpdateDrawer,
-    closeDrawer: closeUpdateDrawer,
-  } = useDrawer();
-  console.log("🚀 ~ Participants ~ drawerId:", drawerId);
   const {
     control,
     handleSubmit,
-    setValue,
-    formState: { errors },
+    errors,
+    onSubmit,
     reset,
-  } = useForm({
-    resolver: zodResolver(participantSchema),
-  });
-
-  const { open, handleOpen, selectedId, handleClose } = useModal();
-
-  const onSubmit = async (values) => {
-    const postData = { ...values, clientId: userId };
-    if (drawerId) {
-      dispatch(updateParticipant({ drawerId, values: postData }));
-      reset();
-      closeUpdateDrawer();
-    } else {
-      dispatch(addParticipant(postData));
-      reset();
-      closeDrawer();
-    }
-  };
-
-  const fetchParticipants = useCallback(async () => {
-    dispatch(getParticipants(userId));
-  }, [dispatch, userId]);
-
-  useEffect(() => {
-    fetchParticipants();
-  }, [fetchParticipants]);
-
-  const { searchTerm, handleSearchChange, handleClearSearch } = useSearch();
-
-  const { sortedData, sortField, sortDirection, handleSortChange } = useSort(
-    data,
-    "fullName"
-  );
-
-  const filteredData = useMemo(() => {
-    if (!searchTerm) return sortedData;
-    return sortedData.filter((item) =>
-      item.theme.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, sortedData]);
-
-  const {
+    drawerOpen,
+    openDrawer,
+    closeDrawer,
+    drawerUpdateOpen,
+    openUpdateDrawer,
+    closeUpdateDrawer,
+    open,
+    selectedId,
+    handleOpen,
+    handleClose,
+    searchTerm,
+    handleSearchChange,
+    handleClearSearch,
+    sortField,
+    sortDirection,
+    handleSortChange,
     page,
     rowsPerPage,
     handlePageChange,
     handleRowsPerPageChange,
-    paginateData,
-  } = usePaginate(0, 5);
-
-  const paginated = paginateData(sortedData);
-  useEffect(() => {
-    if (drawerId && data.length) {
-      const participant = data.find((item) => item._id === drawerId);
-      if (participant) {
-        // Set top-level fields for the update form
-        Object.keys(participant).forEach((key) => {
-          if (key !== "_id" && key !== "id") {
-            setValue(key, participant[key]); // Use react-hook-form's setValue
-          }
-        });
-      }
-    }
-  }, [drawerId, data, setValue]);
-
+    filteredData,
+    paginated,
+    loading,
+    dispatch,
+  } = useParticipant();
   const columns = [
     { id: "fullName", label: "Full Name" },
     { id: "sex", label: "Sex" },
