@@ -141,6 +141,10 @@ const declineTraining = async (req, res) => {
   }
 };
 const getTrainingByClient = async (req, res) => {
+  console.log(
+    "🚀 ~ getTrainingByClient ~ req.params.clientId:",
+    req.params.clientId
+  );
   try {
     const training = await Training.find({ client: req.params.clientId });
     if (!training) return res.status(404).json({ error: "Training not found" });

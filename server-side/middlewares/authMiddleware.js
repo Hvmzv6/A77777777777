@@ -15,12 +15,21 @@ const verifyToken = async (req, res, next) => {
 
 const requireRole = (roles) => {
   return (req, res, next) => {
-    const userRole = req.user.role;
-    const allowed = Array.isArray(roles) ? roles : [roles];
-    if (!allowed.includes(userRole)) {
-      return res.status(403).json({ msg: "Access denied" });
+    const allowedRoles = Array.isArray(roles) ? roles : [roles];
+
+    if (!req.user) {
+      return res.status(403).json({ error: "No user information found" });
     }
-    next();
+
+    if (allowedRoles.includes(req.user.role)) {
+      next();
+    } else {
+      res.status(403).json({
+        error: "Unauthorized: Insufficient role privileges",
+        required: allowedRoles,
+        current: req.user.role,
+      });
+    }
   };
 };
 

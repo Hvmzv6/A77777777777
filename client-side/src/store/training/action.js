@@ -105,11 +105,12 @@ export const updateTraining = createAsyncThunk(
 );
 export const getTrainingByClient = createAsyncThunk(
   "GET-TRAINING-BY-CLIENT",
-  async (clientId, { rejectWithValue }) => {
+  async (userId, { rejectWithValue }) => {
+    console.log("🚀 ~ userId:", userId);
     try {
       const JwtToken = window.localStorage.getItem("authToken");
       const response = await axios.get(
-        `http://localhost:5000/api/trainings/client/${clientId}`,
+        `http://localhost:5000/api/trainings/client/${userId}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -125,11 +126,11 @@ export const getTrainingByClient = createAsyncThunk(
 );
 export const getTrainingByTrainer = createAsyncThunk(
   "GET-TRAINING-BY-TRAINER",
-  async (trainerId, { rejectWithValue }) => {
+  async (userId, { rejectWithValue }) => {
     try {
       const JwtToken = window.localStorage.getItem("authToken");
       const response = await axios.get(
-        `http://localhost:5000/api/trainings/trainer/${trainerId}`,
+        `http://localhost:5000/api/trainings/trainer/${userId}`,
         {
           headers: {
             "Content-Type": "application/json",

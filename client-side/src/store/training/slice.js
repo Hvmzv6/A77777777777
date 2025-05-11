@@ -3,11 +3,11 @@ import {
   addTraining,
   deleteTraining,
   getTraining,
+  getTrainingByClient,
+  getTrainingByTrainer,
   handleClearSelectedAction,
   handleSelectAction,
   updateTraining,
-  getTrainingByClient,
-  getTrainingByTrainer,
 } from "./action";
 
 const initialState = {
@@ -88,7 +88,7 @@ const trainingReducer = createSlice({
         state.error = undefined;
       })
       .addCase(getTrainingByClient.fulfilled, (state, action) => {
-        state.selected = action.payload;
+        state.data = action.payload;
         state.loading = false;
       })
       .addCase(getTrainingByClient.rejected, (state, action) => {
@@ -101,7 +101,7 @@ const trainingReducer = createSlice({
         state.error = undefined;
       })
       .addCase(getTrainingByTrainer.fulfilled, (state, action) => {
-        state.selected = action.payload;
+        state.data = action.payload;
         state.loading = false;
       })
       .addCase(getTrainingByTrainer.rejected, (state, action) => {
