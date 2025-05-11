@@ -10,56 +10,66 @@ const {
   getParticipantsByClient,
 } = require("../controllers/participantController");
 
-const authMiddleware = require("../middlewares/authMiddleware");
+const { verifyToken, requireRole } = require("../middlewares/authMiddleware");
 const validateBody = require("../middlewares/validateBody");
 const {
   ParticipantValidation,
 } = require("../validations/participantValidation");
 
-// Create a new training session
+// Create a new participant
 router.post(
   "/participants",
-  authMiddleware.verifyToken, // Verify token
-  validateBody(ParticipantValidation), // Validate request body
+  verifyToken,
+  requireRole(["admin", "trainer", "client"]), // All roles can create participants, but controllers should validate role-specific access
+  validateBody(ParticipantValidation),
   createParticipant
 );
 
-// Get all training sessions
+// Get all participants
 router.get(
   "/participants",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole("admin"), // Only admins can view all participants
   getAllParticipants
 );
 
-// Get a specific training session by ID
+// Get a specific participant by ID
 router.get(
   "/participants/:id",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole(["admin", "trainer"]), // Admins and trainers can view specific participants
   getParticipant
 );
 
-// Update a specific training session by ID
+// Update a specific participant by ID
 router.put(
   "/participants/:id",
-  authMiddleware.verifyToken, // Verify token
-  validateBody(ParticipantValidation), // Validate request body
+  verifyToken,
+  requireRole(["admin", "trainer"]), // Admins and trainers can update participants
+  validateBody(ParticipantValidation),
   updateParticipant
 );
 
-// Delete a specific training session by ID
+// Delete a specific participant by ID
 router.delete(
   "/participants/:id",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole("admin"), // Only admins can delete participants
   deleteParticipant
 );
+
 router.get(
   "/trainings/:Id/participants",
-  authMiddleware.verifyToken,
+  verifyToken,
+  requireRole(["admin", "trainer"]), // Admins and trainers can view participants by program
   getParticipantsByProgram
 );
+
 router.get(
   "/clients/:clientId/participants",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole(["admin", "client"]), // Admins and the specific client can view client participants
   getParticipantsByClient
 );
+
 module.exports = router;

@@ -1,6 +1,6 @@
 const express = require("express");
 const userController = require("../controllers/userController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const { verifyToken, requireRole } = require("../middlewares/authMiddleware");
 const validateBody = require("../middlewares/validateBody");
 const {
   userCreateValidation,
@@ -12,22 +12,38 @@ const router = express.Router();
 // User CRUD routes (protected)
 router.post(
   "/users/register",
-  authMiddleware.verifyToken,
+  verifyToken,
+  requireRole("admin"), // Only admins can register new users
   validateBody(userCreateValidation),
   userController.registerUser
 );
 
-router.get("/users", authMiddleware.verifyToken, userController.getAllUsers);
-router.get("/users/:id", authMiddleware.verifyToken, userController.getUser);
+router.get(
+  "/users",
+  verifyToken,
+  requireRole("admin"), // Only admins can view all users
+  userController.getAllUsers
+);
+
+router.get(
+  "/users/:id",
+  verifyToken,
+  requireRole(["admin", "trainer"]), // Admins and trainers can view user details
+  userController.getUser
+);
+
 router.put(
   "/users/:id",
-  authMiddleware.verifyToken,
+  verifyToken,
+  requireRole("admin"), // Only admins can update users
   validateBody(userUpdateValidation),
   userController.updateUser
 );
+
 router.delete(
   "/users/:id",
-  authMiddleware.verifyToken,
+  verifyToken,
+  requireRole("admin"), // Only admins can delete users
   userController.deleteUser
 );
 

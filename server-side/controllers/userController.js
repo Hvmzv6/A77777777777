@@ -44,7 +44,16 @@ const getAllUsers = async (req, res) => {
 // Get one user
 const getUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const userId = req.params.id;
+
+    // If not admin and trying to access someone else's profile
+    if (req.user.role !== "admin" && req.user.id !== userId) {
+      return res
+        .status(403)
+        .json({ error: "You can only view your own profile" });
+    }
+
+    const user = await User.findById(userId).select("-password");
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);
   } catch (err) {

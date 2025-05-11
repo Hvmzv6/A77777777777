@@ -11,65 +11,80 @@ const {
   getTrainingByClient,
   getTrainingByTrainer,
 } = require("../controllers/trainingController");
-const authMiddleware = require("../middlewares/authMiddleware");
+const { verifyToken, requireRole } = require("../middlewares/authMiddleware");
 const validateBody = require("../middlewares/validateBody");
 const { trainingValidation } = require("../validations/trainingValidation");
 
 // Create a new training session
 router.post(
   "/trainings",
-  authMiddleware.verifyToken, // Verify token
-  validateBody(trainingValidation), // Validate request body
+  verifyToken,
+  requireRole(["admin", "trainer"]), // Only admins and trainers can create trainings
+  validateBody(trainingValidation),
   createTraining
 );
 
 // Get all training sessions
 router.get(
   "/trainings",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole("admin"), // Only admins can view all trainings
   getAllTrainings
 );
 
 // Get a specific training session by ID
 router.get(
   "/trainings/:id",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  // Any authenticated user can view a specific training, but controllers should filter data based on role
   getTraining
 );
 
 // Update a specific training session by ID
 router.put(
   "/trainings/:id",
-  authMiddleware.verifyToken, // Verify token
-  validateBody(trainingValidation), // Validate request body
+  verifyToken,
+  requireRole(["admin", "trainer"]), // Only admins and trainers can update trainings
+  validateBody(trainingValidation),
   updateTraining
 );
 
 // Delete a specific training session by ID
 router.delete(
   "/trainings/:id",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole("admin"), // Only admins can delete trainings
   deleteTraining
 );
+
+// Fix duplicate routes: adding different path for approve and decline
 router.put(
-  "/trainings/:id",
-  authMiddleware.verifyToken, // Verify token
+  "/trainings/:id/approve",
+  verifyToken,
+  requireRole("admin"), // Only admins can approve trainings
   approveTraining
 );
+
 // Reject a specific training session by ID
 router.put(
-  "/trainings/:id",
-  authMiddleware.verifyToken, // Verify token
+  "/trainings/:id/decline",
+  verifyToken,
+  requireRole("admin"), // Only admins can decline trainings
   declineTraining
 );
+
 router.get(
   "/trainings/client/:clientId",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole(["admin", "client"]), // Admins and the specific client can view client trainings
   getTrainingByClient
 );
+
 router.get(
   "/trainings/trainer/:trainerId",
-  authMiddleware.verifyToken, // Verify token
+  verifyToken,
+  requireRole(["admin", "trainer"]), // Admins and the specific trainer can view trainer trainings
   getTrainingByTrainer
 );
+
 module.exports = router;
