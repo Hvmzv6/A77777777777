@@ -4,6 +4,7 @@ import { Suspense, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import SpinnerFullPage from "./components/SpinnerFullPage";
+import ToastProvider from "./components/ToastProvider";
 import "./index.css";
 import TrainingRequest from "./pages/client/TrainingRequest";
 import Dashboard from "./pages/dashboards/Dashboard";
@@ -16,7 +17,9 @@ import Participants from "./pages/Participants";
 import Profile from "./pages/Profile";
 import Programs from "./pages/Programs";
 import Theme from "./pages/Theme";
+import TrainingProgram from "./pages/trainer/TrainingProgram";
 import Users from "./pages/Users";
+
 import { themeSettings } from "./theme";
 
 function App() {
@@ -25,6 +28,7 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastProvider />
       <CssBaseline />
       <BrowserRouter>
         <Suspense fallback={<SpinnerFullPage />}>
@@ -38,9 +42,17 @@ function App() {
               <Route path="/users" element={<Users />} />
               <Route path="/programs" element={<Programs />} />
               <Route path="/evaluations" element={<Evaluations />} />
-              <Route path="/notifications" element={<Notifications />} />
+
+              {[
+                "/notifications",
+                "/trainer-notifications",
+                "/company-notifications",
+              ].map((path) => (
+                <Route key={path} path={path} element={<Notifications />} />
+              ))}
               <Route path="/request-training" element={<TrainingRequest />} />
               <Route path="/participants" element={<Participants />} />
+              <Route path="/training-programs" element={<TrainingProgram />} />
             </Route>
           </Routes>
         </Suspense>

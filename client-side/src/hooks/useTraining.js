@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
+import pdfheader from "../assets/pdfheader.jpg";
 import {
   addTraining,
   getTraining,
@@ -233,7 +234,7 @@ export function useTraining() {
     },
     { type: "button", text: "Update Program" },
   ];
-  const role = localStorage.getItem("role");
+  const role = localStorage.getItem("userRole");
   const userId = localStorage.getItem("userId");
   const { open: drawerOpen, openDrawer, closeDrawer } = useDrawer();
   const {
@@ -315,7 +316,7 @@ export function useTraining() {
   const filteredData = useMemo(() => {
     if (!searchTerm) return sortedData;
     return sortedData.filter((item) =>
-      item.theme.toLowerCase().includes(searchTerm.toLowerCase())
+      item.title.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [searchTerm, sortedData]);
 
@@ -327,13 +328,12 @@ export function useTraining() {
     paginateData,
   } = usePaginate(0, 5);
 
-  const paginated = paginateData(sortedData);
+  const paginated = paginateData(filteredData);
 
   useEffect(() => {
     if (drawerId && data.length) {
       const program = data.find((item) => item._id === drawerId);
       if (program) {
-        console.log("🚀 ~ useEffect ~ program:", program);
         // Set top-level fields for the update form
         Object.keys(program).forEach((key) => {
           if (key !== "_id" && key !== "id") {
@@ -343,7 +343,48 @@ export function useTraining() {
       }
     }
   }, [drawerId, data, setValue]);
+  const preparePdfData = () => {
+    const trainingData = filteredData.map((item) => ({
+      ref: item.ref || "",
+      trainingNumber: "", // Not present in your columns
+      theme: item.theme || "",
+      startDate: item.startDate || "",
+      endDate: item.endDate || "",
+      days: item.numberOfDays || "",
+      trainer: item.trainerName || "",
+      trainerPhone: item.trainerPhone || "",
+      cin: item.CIN || "",
+      company: item.clientName || "",
+      companyPhone: item.clientPhone || "",
+    }));
 
+    return {
+      headerData: {
+        imageSrc: pdfheader, // Reference the new image
+
+        address: "Avenue Jadida Maghrébia - B.P N° 207- 8000 Nabeul",
+        contact:
+          "E-mail: cpfmi@planet.tn | Mobile: 20 346 582 | Tél: 72 233 999",
+        website: "www.cpfmi.com",
+        title:
+          "TABLEAU DE BORD DE SUIVI DE RÉALISATION DES ACTIONS DE FORMATION 2025",
+      },
+      tableHeaders: [
+        "Réf.",
+        "N° F",
+        "Thèmes",
+        "Début",
+        "Fin",
+        "Nb jours",
+        "Formateurs",
+        "Téléphone",
+        "N° C.I.N.",
+        "Sociétés",
+        "Téléphone",
+      ],
+      items: trainingData,
+    };
+  };
   return {
     loading,
     error,
@@ -379,5 +420,6 @@ export function useTraining() {
     handleOpen,
     handleClose,
     reset,
+    preparePdfData,
   };
 }

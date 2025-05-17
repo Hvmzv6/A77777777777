@@ -19,7 +19,7 @@ const { trainingValidation } = require("../validations/trainingValidation");
 router.post(
   "/trainings",
   verifyToken,
-  requireRole(["admin", "trainer"]), // Only admins and trainers can create trainings
+  requireRole(["admin", "trainer", "client"]), // Add 'client' to allowed roles
   validateBody(trainingValidation),
   createTraining
 );

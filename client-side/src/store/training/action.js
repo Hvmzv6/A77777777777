@@ -103,6 +103,51 @@ export const updateTraining = createAsyncThunk(
     }
   }
 );
+
+export const approveTraining = createAsyncThunk(
+  "APPROVE-training",
+  async (trainingId, { rejectWithValue }) => {
+    try {
+      const JwtToken = window.localStorage.getItem("authToken");
+      const response = await axios.put(
+        `http://localhost:5000/api/trainings/${trainingId}/approve`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${JwtToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const declineTraining = createAsyncThunk(
+  "DECLINE-training",
+  async (trainingId, { rejectWithValue }) => {
+    try {
+      const JwtToken = window.localStorage.getItem("authToken");
+      const response = await axios.put(
+        `http://localhost:5000/api/trainings/${trainingId}/decline`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${JwtToken}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 export const getTrainingByClient = createAsyncThunk(
   "GET-TRAINING-BY-CLIENT",
   async (userId, { rejectWithValue }) => {

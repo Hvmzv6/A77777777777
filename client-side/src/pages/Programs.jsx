@@ -3,8 +3,11 @@ import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteIcon from "@mui/icons-material/Delete";
+import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { Box, Chip, Typography } from "@mui/material";
 import { useDispatch } from "react-redux";
+
+import { pdf } from "@react-pdf/renderer";
 import CustomButton from "../components/CustomButton";
 import CustomDrawer from "../components/CustomDrawer";
 import CustomIconButton from "../components/CustomIconButton";
@@ -12,6 +15,7 @@ import CustomMenuFilter from "../components/CustomMenuFilter";
 import CustomModal from "../components/CustomModal";
 import CustomTable from "../components/CustomTable";
 import RenderFormField from "../components/RenderFormField";
+import { TrainingDashboardPdf } from "../components/TrainingDashboardPdf";
 import { useTraining } from "../hooks/useTraining";
 import { deleteTraining } from "../store/training/action";
 
@@ -48,59 +52,32 @@ const Programs = () => {
     handleOpen,
     handleClose,
     reset,
+    preparePdfData,
   } = useTraining();
+
+  // Map filteredData to PDF data format
 
   const columns = [
     { id: "ref", label: "Ref" },
     { id: "title", label: "Title" },
-    {
-      id: "theme",
-      label: "Theme",
-    },
-    {
-      id: "startDate",
-      label: "Start Date",
-    },
-    {
-      id: "endDate",
-      label: "End Date",
-    },
-    {
-      id: "numberOfDays",
-      label: "Days",
-    },
-    {
-      id: "trainerName",
-      label: "Trainer",
-    },
-    {
-      id: "trainerPhone",
-      label: "Trainer Phone",
-    },
-    {
-      id: "CIN",
-      label: "CIN",
-    },
-    {
-      id: "clientName",
-      label: "Client",
-    },
-    {
-      id: "clientPhone",
-      label: "Client Phone",
-    },
+    { id: "theme", label: "Theme" },
+    { id: "startDate", label: "Start Date" },
+    { id: "endDate", label: "End Date" },
+    { id: "numberOfDays", label: "Days" },
+    { id: "trainerName", label: "Trainer" },
+    { id: "trainerPhone", label: "Trainer Phone" },
+    { id: "CIN", label: "CIN" },
+    { id: "clientName", label: "Client" },
+    { id: "clientPhone", label: "Client Phone" },
     {
       id: "status",
       label: "Status",
       render: (row) => {
         let color = "default";
-        // fallback color
-
         if (row.status === "pending") color = "warning";
         else if (row.status === "confirmed") color = "primary";
         else if (row.status === "completed") color = "success";
-        else if (row.status === "cancelled") color = "error"; // red
-
+        else if (row.status === "cancelled") color = "error";
         return (
           <Chip
             sx={{ fontWeight: 600 }}
@@ -111,7 +88,6 @@ const Programs = () => {
         );
       },
     },
-
     {
       id: "actions",
       label: "Actions",
@@ -140,9 +116,29 @@ const Programs = () => {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <Typography variant="h1">Programs</Typography>
-        <CustomButton onClick={() => openDrawer()} size="large">
-          <AddIcon /> Add a new Program
-        </CustomButton>
+        <div className="flex gap-2">
+          <CustomButton onClick={() => openDrawer()} size="large">
+            <AddIcon /> Add a new Program
+          </CustomButton>
+          <CustomButton
+            size="large"
+            color="success"
+            disabled={filteredData.length === 0}
+            startIcon={<PictureAsPdfIcon />}
+            onClick={async () => {
+              const blob = await pdf(
+                <TrainingDashboardPdf
+                  orientation="landscape"
+                  {...preparePdfData()}
+                />
+              ).toBlob();
+              const url = URL.createObjectURL(blob);
+              window.open(url); // Open in new tab
+            }}
+          >
+            Export to PDF
+          </CustomButton>
+        </div>
       </div>
       <CustomMenuFilter
         sortField={sortField}
@@ -172,7 +168,6 @@ const Programs = () => {
           },
         ]}
       />
-      {/* data Table */}
       <CustomTable
         columns={columns}
         data={paginated}
@@ -183,7 +178,6 @@ const Programs = () => {
         onPageChange={handlePageChange}
         onRowsPerPageChange={handleRowsPerPageChange}
       />
-      {/* ADD PROGRAM DRAWER */}
       <CustomDrawer
         title={"Add a new Program"}
         open={drawerOpen}
@@ -219,7 +213,6 @@ const Programs = () => {
           </form>
         </Box>
       </CustomDrawer>
-      {/* UPDATE PROGRAM DRAWER */}
       <CustomDrawer
         title={"Update a Program"}
         open={drawerUpdateOpen}
@@ -255,7 +248,6 @@ const Programs = () => {
           </form>
         </Box>
       </CustomDrawer>
-      {/* DELETE MODAL */}
       <CustomModal
         open={open}
         onClose={() => handleClose()}

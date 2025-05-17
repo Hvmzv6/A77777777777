@@ -79,12 +79,12 @@ const navItemsByRole = {
       url: "dashboard",
     },
     {
-      text: "My Sessions",
+      text: "training-programs",
       icon: (
         <LiaChalkboardTeacherSolid className="text-2xl text-center p-0 m-0" />
       ),
-      lcText: "sessions",
-      url: "trainer-sessions",
+      lcText: "programs",
+      url: "training-programs",
     },
     {
       text: "My Evaluations",

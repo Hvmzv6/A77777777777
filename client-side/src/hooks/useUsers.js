@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
 import { addUser, getUsers, updateUser } from "../store/user/action";
+import { showToast } from "../utils/toastUtils";
 import { useDrawer } from "./useDrawer";
 import { useModal } from "./useModal";
 import usePaginate from "./usePaginate";
@@ -59,16 +60,17 @@ export function useUsers() {
   const { open, selectedId, handleOpen, handleClose } = useModal();
 
   const onSubmit = async (values) => {
-    console.log("🚀 ~ onSubmit ~ drawerId:", drawerId);
     if (drawerId) {
       const { fullName, email, role } = values;
       dispatch(updateUser({ drawerId, values: { fullName, email, role } }));
       resetUpdate();
       closeUpdateDrawer();
+      showToast("user updated successfully!", "success");
     } else {
       dispatch(addUser(values));
       reset();
       closeDrawer();
+      showToast("user created successfully!", "success");
     }
   };
 

@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import * as z from "zod";
 import logo from "../assets/logo.png";
 import RenderFormField from "../components/RenderFormField";
+import socket from "../socket";
 const loginFields = [
   {
     name: "email",
@@ -73,10 +74,12 @@ const Login = () => {
       const decodedToken = jwtDecode(token);
       console.log("🚀 ~ onSubmit ~ decodedToken:", decodedToken);
       const role = decodedToken.role;
+      const userId = decodedToken.id;
       // Save token to localStorage
       localStorage.setItem("authToken", token);
-      localStorage.setItem("userId", decodedToken.id);
+      localStorage.setItem("userId", userId);
       localStorage.setItem("userRole", role);
+      socket.connect();
 
       // Dispatch login action to Redux store
       // dispatch(login({ token, role }));

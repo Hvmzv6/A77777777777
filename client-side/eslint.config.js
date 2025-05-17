@@ -22,6 +22,7 @@ export default [
         localStorage: true,
         console: true,
         fetch: true,
+        URL: true,
       },
     },
 

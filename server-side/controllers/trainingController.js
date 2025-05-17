@@ -1,22 +1,20 @@
 const Training = require("../models/trainingModel");
 
 const createTraining = async (req, res) => {
-  console.log("🚀 ~ createTraining ~ req:", req.body);
   try {
     const {
       ref,
-      status,
+      status = "pending",
       theme,
       title,
       startDate,
       endDate,
-      // numberOfDays : calculatedNumberOfDays,
       trainer,
       trainerPhone,
       CIN,
       client,
       clientPhone,
-      participants = [], // ✅ accept participants array from body
+      participants = [],
     } = req.body;
 
     if (!startDate || !endDate) {
@@ -46,8 +44,22 @@ const createTraining = async (req, res) => {
     });
 
     const savedTraining = await newTraining.save();
+
+    // Notify admins about new training request
+    const io = req.app.get("io");
+    io.to("admin").emit("newTrainingRequest", {
+      _id: savedTraining._id,
+      ref: savedTraining.ref,
+      title: savedTraining.title,
+      trainer: savedTraining.trainer,
+      client: savedTraining.client,
+      status: savedTraining.status,
+      timestamp: new Date(),
+      message: `New training request: ${savedTraining.title}`,
+    });
+
     res.status(201).json({
-      message: "Training created successfully",
+      message: "Training request created successfully",
       training: savedTraining,
     });
   } catch (err) {
@@ -69,7 +81,6 @@ const getAllTrainings = async (req, res) => {
 const getTraining = async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
-
     if (!training) return res.status(404).json({ error: "Training not found" });
     res.json(training);
   } catch (err) {
@@ -106,7 +117,7 @@ const updateTraining = async (req, res) => {
   }
 };
 
-const deleteTraining = async (req, res) => {
+const deleteTraining = async (req, adminres) => {
   try {
     const training = await Training.findByIdAndDelete(req.params.id);
     if (!training) return res.status(404).json({ error: "Training not found" });
@@ -116,35 +127,62 @@ const deleteTraining = async (req, res) => {
     res.status(500).json({ error: "Failed to delete training" });
   }
 };
+
 const approveTraining = async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
     if (!training) return res.status(404).json({ error: "Training not found" });
     training.approved = true;
+    training.status = "confirmed";
     await training.save();
+
+    // Notify client about approved training
+    const io = req.app.get("io");
+    io.to(training.client.toString()).emit("trainingStatusUpdate", {
+      _id: training._id,
+      ref: training.ref,
+      title: training.title,
+      status: training.status,
+      approved: training.approved,
+      message: `Your training request "${training.title}" has been approved.`,
+      timestamp: new Date(),
+    });
+
     res.json(training);
   } catch (err) {
     console.error("Error approving training:", err);
     res.status(500).json({ error: "Failed to approve training" });
   }
 };
+
 const declineTraining = async (req, res) => {
   try {
     const training = await Training.findById(req.params.id);
     if (!training) return res.status(404).json({ error: "Training not found" });
     training.approved = false;
+    training.status = "cancelled";
     await training.save();
+
+    // Notify client about declined training
+    const io = req.app.get("io");
+    io.to(training.client.toString()).emit("trainingStatusUpdate", {
+      _id: training._id,
+      ref: training.ref,
+      title: training.title,
+      status: training.status,
+      approved: training.approved,
+      message: `Your training request "${training.title}" has been declined.`,
+      timestamp: new Date(),
+    });
+
     res.json(training);
   } catch (err) {
     console.error("Error declining training:", err);
     res.status(500).json({ error: "Failed to decline training" });
   }
 };
+
 const getTrainingByClient = async (req, res) => {
-  console.log(
-    "🚀 ~ getTrainingByClient ~ req.params.clientId:",
-    req.params.clientId
-  );
   try {
     const training = await Training.find({ client: req.params.clientId });
     if (!training) return res.status(404).json({ error: "Training not found" });
@@ -154,6 +192,7 @@ const getTrainingByClient = async (req, res) => {
     res.status(500).json({ error: "Failed to get training by client" });
   }
 };
+
 const getTrainingByTrainer = async (req, res) => {
   try {
     const training = await Training.find({ trainer: req.params.trainerId });
