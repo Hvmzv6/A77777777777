@@ -27,6 +27,9 @@ connectDB();
 
 app.use(express.json());
 
+// Make io accessible in routes
+app.set("socketio", io);
+
 // Routes
 io.on("connection", (socket) => {
   socket.on("join", ({ userId, role }) => {

@@ -1,4 +1,3 @@
-import React from "react";
 import CustomButton from "./CustomButton";
 import RenderInput from "./RenderInput";
 const RenderFormField = ({
@@ -17,6 +16,7 @@ const RenderFormField = ({
   color,
   control,
   errors,
+  ...rest
 }) => {
   if (field.type === "button") {
     return (
@@ -27,6 +27,7 @@ const RenderFormField = ({
         sx={sx}
         color={color}
         type="submit"
+        {...rest}
       >
         {field.text}
       </CustomButton>
@@ -47,6 +48,7 @@ const RenderFormField = ({
       deleteFile={deleteFile}
       control={control}
       errors={errors}
+      {...rest}
     />
   );
 };

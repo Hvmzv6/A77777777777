@@ -46,7 +46,7 @@ const createTraining = async (req, res) => {
     const savedTraining = await newTraining.save();
 
     // Notify admins about new training request
-    const io = req.app.get("io");
+    const io = req.app.get("socketio");
     io.to("admin").emit("newTrainingRequest", {
       _id: savedTraining._id,
       ref: savedTraining.ref,

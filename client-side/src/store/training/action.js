@@ -29,7 +29,7 @@ export const addTraining = createAsyncThunk(
 
       const response = await axios.post(
         "http://localhost:5000/api/trainings",
-        postData,
+        postData.values,
         {
           headers: {
             "Content-Type": "application/json",
@@ -38,7 +38,7 @@ export const addTraining = createAsyncThunk(
         }
       );
 
-      return [...trainingState, { ...response.data }];
+      return [...trainingState, { ...response.data.training }];
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -78,7 +78,7 @@ export const updateTraining = createAsyncThunk(
   async ({ drawerId, values: updatedData }, { rejectWithValue, getState }) => {
     try {
       const JwtToken = window.localStorage.getItem("authToken");
-      const prevData = getState().trainingReducer.data;
+      const prevData = getState().training.data;
 
       const response = await axios.put(
         `http://localhost:5000/api/trainings/${drawerId}`,

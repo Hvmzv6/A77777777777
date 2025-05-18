@@ -28,7 +28,7 @@ router.post(
 router.get(
   "/trainings",
   verifyToken,
-  requireRole("admin"), // Only admins can view all trainings
+  requireRole("admin", "client"), // Only admins can view all trainings
   getAllTrainings
 );
 
@@ -44,7 +44,7 @@ router.get(
 router.put(
   "/trainings/:id",
   verifyToken,
-  requireRole(["admin", "trainer"]), // Only admins and trainers can update trainings
+  requireRole(["admin", "trainer", "client"]),
   validateBody(trainingValidation),
   updateTraining
 );
@@ -53,7 +53,7 @@ router.put(
 router.delete(
   "/trainings/:id",
   verifyToken,
-  requireRole("admin"), // Only admins can delete trainings
+  requireRole("admin", "client"), // Only admins can delete trainings
   deleteTraining
 );
 

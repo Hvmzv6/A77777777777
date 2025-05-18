@@ -18,122 +18,41 @@ import { useSearch } from "./useSearch";
 import useSort from "./useSort";
 import { useTheme } from "./useTheme";
 import { useUsers } from "./useUsers";
+
 const programSchema = z.object({
   ref: z.string().nonempty({ message: "Reference is required" }),
-  status: z.enum(["pending", "confirmed", "completed", "cancelled"], {
-    errorMap: () => ({ message: "Status is required" }),
-  }),
+  status: z
+    .enum(["pending", "confirmed", "completed", "cancelled"])
+    .default("pending")
+    .optional(),
   theme: z.string().nonempty({ message: "Theme is required" }),
   title: z.string().nonempty({ message: "Title is required" }),
   startDate: z.string().nonempty({ message: "Start date is required" }),
   endDate: z.string().nonempty({ message: "End date is required" }),
-  trainer: z.string().nonempty({ message: "Trainer is required" }),
-  trainerPhone: z.string().nonempty({ message: "Trainer phone is required" }),
-  CIN: z.string().nonempty({ message: "CIN is required" }),
-  client: z.string().nonempty({ message: "Client is required" }),
-  clientPhone: z.string().nonempty({ message: "Client phone is required" }),
+  trainer: z.string().optional(),
+  trainerPhone: z.string().optional(),
+  CIN: z.string().optional(),
+  client: z.string().optional(),
+  clientPhone: z.string().optional(),
   participants: z.array(z.string()).optional(),
 });
+
 export function useTraining() {
   const { loading, data, error } = useSelector((state) => state.training);
   const { data: users } = useUsers();
   const { data: themes } = useTheme();
-  const programFields = [
-    {
-      name: "ref",
-      label: "Reference",
-      type: "text",
-      placeholder: "Enter program reference",
-    },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: [
-        { label: "Pending", value: "pending" },
-        { label: "Confirmed", value: "confirmed" },
-        { label: "Completed", value: "completed" },
-        { label: "Cancelled", value: "cancelled" },
-      ],
-    },
-    {
-      name: "theme",
-      label: "Theme",
-      type: "select",
-      options: themes?.map((theme) => ({
-        label: theme.name,
-        value: theme._id,
-        placeholder: "Select a theme",
-      })),
-    },
-    {
-      name: "title",
-      label: "Title",
-      type: "text",
-      placeholder: "Enter program title",
-    },
-    {
-      name: "startDate",
-      label: "Start Date",
-      type: "date",
-    },
-    {
-      name: "endDate",
-      label: "End Date",
-      type: "date",
-    },
-    {
-      name: "trainer",
-      label: "Trainer",
-      type: "select",
-      options: users
-        ?.filter((user) => user.role === "trainer")
-        .map((user) => ({
-          label: user.fullName,
-          value: user._id,
-        })),
-      placeholder: "Select a trainer",
-    },
-    {
-      name: "trainerPhone",
-      label: "Trainer Phone",
-      type: "text",
-      placeholder: "Enter trainer phone number",
-    },
-    {
-      name: "CIN",
-      label: "CIN",
-      type: "text",
-      placeholder: "Enter trainer CIN",
-    },
-    {
-      name: "client",
-      label: "Client",
-      type: "select",
-      options: users
-        ?.filter((user) => user.role === "client")
-        .map((user) => ({
-          label: user.fullName,
-          value: user._id,
-        })),
-      placeholder: "Select a client",
-    },
-    {
-      name: "clientPhone",
-      label: "Client Phone",
-      type: "text",
-      placeholder: "Enter client phone number",
-    },
-    {
-      name: "participants",
-      label: "Participants",
-      type: "multi-select",
-      options: [], // Populate dynamically with participants from the database
-      placeholder: "Select participants",
-    },
-    { type: "button", text: "Create Program" },
-  ];
 
+  const role = localStorage.getItem("userRole");
+  const userId = localStorage.getItem("userId");
+  const { open: drawerOpen, openDrawer, closeDrawer } = useDrawer();
+  const {
+    open: drawerUpdateOpen,
+    selectedId: drawerId,
+    openDrawer: openUpdateDrawer,
+    closeDrawer: closeUpdateDrawer,
+  } = useDrawer();
+  const { open, selectedId, handleOpen, handleClose } = useModal();
+  const dispatch = useDispatch();
   const programUpdateFields = [
     {
       name: "ref",
@@ -141,16 +60,20 @@ export function useTraining() {
       type: "text",
       placeholder: "Enter program reference",
     },
-    {
-      name: "status",
-      label: "Status",
-      type: "select",
-      options: [
-        { label: "Pending", value: "pending" },
-        { label: "Confirmed", value: "confirmed" },
-        { label: "Completed", value: "completed" },
-        { label: "Cancelled", value: "cancelled" },
-      ],
+    role === "admin" && {
+      ...{
+        name: "status",
+        label: "Status",
+        type: "select",
+        options: [
+          { label: "Pending", value: "pending" },
+          { label: "Confirmed", value: "confirmed" },
+          { label: "Completed", value: "completed" },
+          { label: "Cancelled", value: "cancelled" },
+        ],
+        disabled: role !== "admin",
+        defaultValue: "pending", // Set default to pending
+      },
     },
     {
       name: "theme",
@@ -160,7 +83,7 @@ export function useTraining() {
         themes?.map((theme) => ({
           label: theme.name,
           value: theme._id,
-        })) || [], // Dynamically populate themes
+        })) || [],
       placeholder: "Select a theme",
     },
     {
@@ -181,7 +104,7 @@ export function useTraining() {
       type: "date",
       placeholder: "Select end date",
     },
-    {
+    role === "admin" && {
       name: "trainer",
       label: "Trainer",
       type: "select",
@@ -191,62 +114,55 @@ export function useTraining() {
           .map((user) => ({
             label: user.fullName,
             value: user._id,
-          })) || [], // Dynamically populate trainers
+          })) || [],
       placeholder: "Select a trainer",
+      disabled: role === "client",
     },
-    {
+    role === "admin" && {
       name: "trainerPhone",
       label: "Trainer Phone",
       type: "text",
       placeholder: "Enter trainer phone number",
     },
-    {
+    role === "admin" && {
       name: "CIN",
       label: "CIN",
       type: "text",
       placeholder: "Enter trainer CIN",
     },
-    {
-      name: "client",
-      label: "Client",
-      type: "select",
-      options:
-        users
-          ?.filter((user) => user.role === "client")
-          .map((user) => ({
-            label: user.fullName,
-            value: user._id,
-          })) || [], // Dynamically populate clients
-      placeholder: "Select a client",
+    role != "client" && {
+      ...{
+        name: "client",
+        label: "Client",
+        type: "select",
+        options:
+          users
+            ?.filter((user) => user.role === "client")
+            .map((user) => ({
+              label: user.fullName,
+              value: user._id,
+            })) || [],
+        disabled: role === "trainer",
+      },
     },
-    {
-      name: "clientPhone",
-      label: "Client Phone",
-      type: "text",
-      placeholder: "Enter client phone number",
+    role != "client" && {
+      ...{
+        name: "clientPhone",
+        label: "Client Phone",
+        type: "text",
+        placeholder: "Enter client phone number",
+        disabled: role === "trainer" && role == "admin",
+      },
     },
     {
       name: "participants",
       label: "Participants",
       type: "multi-select",
-      options: [], // Populate dynamically with participants from the database
+      options: [],
       placeholder: "Select participants",
     },
     { type: "button", text: "Update Program" },
   ];
-  const role = localStorage.getItem("userRole");
-  const userId = localStorage.getItem("userId");
-  const { open: drawerOpen, openDrawer, closeDrawer } = useDrawer();
-  const {
-    open: drawerUpdateOpen,
-    selectedId: drawerId,
-    openDrawer: openUpdateDrawer,
-    closeDrawer: closeUpdateDrawer,
-  } = useDrawer();
-  const { open, selectedId, handleOpen, handleClose } = useModal();
-  const dispatch = useDispatch();
-  console.log("training data", data);
-
   const fetchtrainings = useCallback(async () => {
     if (role === "client") {
       dispatch(getTrainingByClient(userId));
@@ -260,6 +176,7 @@ export function useTraining() {
   useEffect(() => {
     fetchtrainings();
   }, [dispatch, fetchtrainings]);
+
   const {
     control,
     handleSubmit,
@@ -269,24 +186,28 @@ export function useTraining() {
   } = useForm({
     resolver: zodResolver(programSchema),
   });
+
   const onSubmit = async (values) => {
     if (drawerId) {
       dispatch(updateTraining({ drawerId, values }));
       closeUpdateDrawer();
       reset();
     } else {
-      dispatch(addTraining(values));
-      closeDrawer();
-      reset();
+      dispatch(
+        addTraining({
+          values: { ...values, client: userId, status: "pending" },
+        })
+      );
     }
   };
+
   const transformedData = useMemo(() => {
     return data.map((item) => {
       const trainerObj = users?.find((user) => user._id === item.trainer);
       const clientObj = users?.find((user) => user._id === item.client);
       const themeObj = themes?.find((theme) => theme._id === item.theme);
       const formatDate = (dateStr) =>
-        new Date(dateStr).toLocaleDateString("en-GB"); // dd/mm/yyyy
+        new Date(dateStr).toLocaleDateString("en-GB");
       return {
         id: item._id,
         ref: item.ref || "N/A",
@@ -303,7 +224,7 @@ export function useTraining() {
         CIN: item.CIN || "N/A",
         clientName: clientObj?.fullName || "Unknown Client",
         clientPhone: item.clientPhone || "N/A",
-        participants: item.participants?.length || 0, // Count of participants
+        participants: item.participants?.length || 0,
       };
     });
   }, [data, users, themes]);
@@ -334,19 +255,45 @@ export function useTraining() {
     if (drawerId && data.length) {
       const program = data.find((item) => item._id === drawerId);
       if (program) {
-        // Set top-level fields for the update form
         Object.keys(program).forEach((key) => {
           if (key !== "_id" && key !== "id") {
-            setValue(key, program[key]); // Use react-hook-form's setValue
+            setValue(key, program[key]);
           }
         });
       }
     }
   }, [drawerId, data, setValue]);
+
+  const handleApprove = (id) => {
+    const program = data.find((item) => item._id === id);
+    if (program) {
+      const updatedProgram = { ...program, status: "confirmed" };
+      delete updatedProgram._id;
+      delete updatedProgram.numberOfDays;
+      delete updatedProgram.createdAt;
+      delete updatedProgram.updatedAt;
+      delete updatedProgram.__v;
+      dispatch(updateTraining({ drawerId: id, values: updatedProgram }));
+    }
+  };
+
+  const handleReject = (id) => {
+    const program = data.find((item) => item._id === id);
+    if (program) {
+      const updatedProgram = { ...program, status: "cancelled" };
+      delete updatedProgram._id;
+      delete updatedProgram.numberOfDays;
+      delete updatedProgram.createdAt;
+      delete updatedProgram.updatedAt;
+      delete updatedProgram.__v;
+      dispatch(updateTraining({ drawerId: id, values: updatedProgram }));
+    }
+  };
+
   const preparePdfData = () => {
     const trainingData = filteredData.map((item) => ({
       ref: item.ref || "",
-      trainingNumber: "", // Not present in your columns
+      trainingNumber: "",
       theme: item.theme || "",
       startDate: item.startDate || "",
       endDate: item.endDate || "",
@@ -360,8 +307,7 @@ export function useTraining() {
 
     return {
       headerData: {
-        imageSrc: pdfheader, // Reference the new image
-
+        imageSrc: pdfheader,
         address: "Avenue Jadida Maghrébia - B.P N° 207- 8000 Nabeul",
         contact:
           "E-mail: cpfmi@planet.tn | Mobile: 20 346 582 | Tél: 72 233 999",
@@ -385,24 +331,19 @@ export function useTraining() {
       items: trainingData,
     };
   };
+
   return {
     loading,
     error,
     data,
-    drawerOpen,
-    openDrawer,
-    closeDrawer,
     drawerUpdateOpen,
     openUpdateDrawer,
     closeUpdateDrawer,
-    drawerId,
     onSubmit,
     control,
     handleSubmit,
     errors,
-    programFields,
     programUpdateFields,
-    sortedData,
     sortField,
     sortDirection,
     handleSortChange,
@@ -421,5 +362,11 @@ export function useTraining() {
     handleClose,
     reset,
     preparePdfData,
+    handleApprove,
+    handleReject,
+    role,
+    drawerOpen,
+    openDrawer,
+    closeDrawer,
   };
 }

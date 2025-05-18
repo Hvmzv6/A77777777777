@@ -56,8 +56,8 @@ const routesByRole = {
       element: React.lazy(() => import("./dashboards/CompanyDashboard")),
     },
     {
-      path: "/trainingRequest",
-      element: React.lazy(() => import("./client/TrainingRequest")),
+      path: "/programs",
+      element: React.lazy(() => import("./client/Programs")),
     },
     {
       path: "/logout",

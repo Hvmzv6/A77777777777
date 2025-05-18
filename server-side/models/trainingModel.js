@@ -21,16 +21,14 @@ const trainingSchema = new mongoose.Schema(
     trainer: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
-    trainerPhone: { type: String, required: true },
-    CIN: { type: String, required: true },
+    trainerPhone: { type: String },
+    CIN: { type: String },
     client: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
-    clientPhone: { type: String, required: true },
+    clientPhone: { type: String },
     participants: [
       {
         type: mongoose.Schema.Types.ObjectId,

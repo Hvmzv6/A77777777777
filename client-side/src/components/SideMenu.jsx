@@ -84,7 +84,7 @@ const navItemsByRole = {
         <LiaChalkboardTeacherSolid className="text-2xl text-center p-0 m-0" />
       ),
       lcText: "programs",
-      url: "training-programs",
+      url: "trainer-programs",
     },
     {
       text: "My Evaluations",
@@ -117,19 +117,19 @@ const navItemsByRole = {
       text: "training request",
       icon: <ScheduleSendIcon />,
       lcText: "request-training",
-      url: "request-training",
+      url: "client-programs",
     },
     {
       text: "Evaluations",
       icon: <TrendingUpIcon />,
       lcText: "evaluations",
-      url: "company-evaluations",
+      url: "client-evaluations",
     },
     {
       text: "Notifications",
       icon: <NotificationsActiveIcon />,
       lcText: "notifications",
-      url: "company-notifications",
+      url: "client-notifications",
     },
   ],
 };

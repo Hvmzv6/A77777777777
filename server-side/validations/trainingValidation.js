@@ -4,7 +4,8 @@ const trainingValidation = Joi.object({
   ref: Joi.string().trim().required(),
   status: Joi.string()
     .valid("pending", "confirmed", "completed", "cancelled")
-    .required(),
+    .default("pending")
+    .optional(),
   theme: Joi.string().trim().optional(),
   title: Joi.string().trim().required(),
   startDate: Joi.date().iso().required(),
@@ -12,8 +13,8 @@ const trainingValidation = Joi.object({
   trainer: Joi.string().optional(),
   trainerPhone: Joi.string().trim().optional(),
   CIN: Joi.string().trim().optional(),
-  client: Joi.string().required(),
-  clientPhone: Joi.string().trim().required(),
+  client: Joi.string().optional(),
+  clientPhone: Joi.string().trim().optional(),
   participants: Joi.array().items(Joi.string()).default([]),
 });
 

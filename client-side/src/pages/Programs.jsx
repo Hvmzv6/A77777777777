@@ -1,13 +1,13 @@
-import AddIcon from "@mui/icons-material/Add";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import CheckIcon from "@mui/icons-material/Check";
+import CloseIcon from "@mui/icons-material/Close";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PictureAsPdfIcon from "@mui/icons-material/PictureAsPdf";
 import { Box, Chip, Typography } from "@mui/material";
-import { useDispatch } from "react-redux";
-
 import { pdf } from "@react-pdf/renderer";
+import { useDispatch } from "react-redux";
 import CustomButton from "../components/CustomButton";
 import CustomDrawer from "../components/CustomDrawer";
 import CustomIconButton from "../components/CustomIconButton";
@@ -23,9 +23,7 @@ const Programs = () => {
   const dispatch = useDispatch();
   const {
     loading,
-    drawerOpen,
-    openDrawer,
-    closeDrawer,
+
     drawerUpdateOpen,
     openUpdateDrawer,
     closeUpdateDrawer,
@@ -33,7 +31,6 @@ const Programs = () => {
     control,
     handleSubmit,
     errors,
-    programFields,
     programUpdateFields,
     sortField,
     sortDirection,
@@ -53,6 +50,12 @@ const Programs = () => {
     handleClose,
     reset,
     preparePdfData,
+    handleApprove,
+    handleReject,
+    role,
+    drawerOpen,
+    openDrawer,
+    closeDrawer,
   } = useTraining();
 
   // Map filteredData to PDF data format
@@ -107,6 +110,26 @@ const Programs = () => {
             onClick={() => handleOpen(row.id)}
             icon={<DeleteIcon />}
           />
+          {row.status === "pending" && role === "admin" && (
+            <>
+              <CustomIconButton
+                color="success"
+                size="small"
+                tooltip="Approuver"
+                onClick={() => {
+                  handleApprove(row.id);
+                }}
+                icon={<CheckIcon />}
+              />
+              <CustomIconButton
+                color="error"
+                size="small"
+                tooltip="Rejeter"
+                onClick={() => handleReject(row.id)}
+                icon={<CloseIcon />}
+              />
+            </>
+          )}
         </div>
       ),
     },
@@ -117,27 +140,37 @@ const Programs = () => {
       <div className="flex items-center justify-between">
         <Typography variant="h1">Programs</Typography>
         <div className="flex gap-2">
-          <CustomButton onClick={() => openDrawer()} size="large">
-            <AddIcon /> Add a new Program
-          </CustomButton>
-          <CustomButton
-            size="large"
-            color="success"
-            disabled={filteredData.length === 0}
-            startIcon={<PictureAsPdfIcon />}
-            onClick={async () => {
-              const blob = await pdf(
-                <TrainingDashboardPdf
-                  orientation="landscape"
-                  {...preparePdfData()}
-                />
-              ).toBlob();
-              const url = URL.createObjectURL(blob);
-              window.open(url); // Open in new tab
-            }}
-          >
-            Export to PDF
-          </CustomButton>
+          {role === "admin" && (
+            <>
+              <CustomButton
+                size="large"
+                color="success"
+                disabled={filteredData.length === 0}
+                startIcon={<PictureAsPdfIcon />}
+                onClick={async () => {
+                  const blob = await pdf(
+                    <TrainingDashboardPdf
+                      orientation="landscape"
+                      {...preparePdfData()}
+                    />
+                  ).toBlob();
+                  const url = URL.createObjectURL(blob);
+                  window.open(url); // Open in new tab
+                }}
+              >
+                Export to PDF
+              </CustomButton>
+            </>
+          )}
+          {role === "client" && (
+            <CustomButton
+              size="large"
+              color="primary"
+              onClick={() => openDrawer()}
+            >
+              Add Program
+            </CustomButton>
+          )}
         </div>
       </div>
       <CustomMenuFilter
@@ -179,7 +212,7 @@ const Programs = () => {
         onRowsPerPageChange={handleRowsPerPageChange}
       />
       <CustomDrawer
-        title={"Add a new Program"}
+        title={"Update a Program"}
         open={drawerOpen}
         onClose={() => {
           closeDrawer();
@@ -201,50 +234,17 @@ const Programs = () => {
             className="flex flex-col gap-2 w-full"
             onSubmit={handleSubmit(onSubmit)}
           >
-            {programFields.map((field, index) => (
-              <RenderFormField
-                key={index}
-                index={index}
-                field={field}
-                control={control}
-                errors={errors}
-              />
-            ))}
-          </form>
-        </Box>
-      </CustomDrawer>
-      <CustomDrawer
-        title={"Update a Program"}
-        open={drawerUpdateOpen}
-        onClose={() => {
-          closeUpdateDrawer();
-          reset();
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-            width: "100%",
-            px: 5,
-            py: 5,
-            borderRadius: 10,
-          }}
-        >
-          <form
-            className="flex flex-col gap-2 w-full"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            {programUpdateFields.map((field, index) => (
-              <RenderFormField
-                key={index}
-                index={index}
-                field={field}
-                control={control}
-                errors={errors}
-              />
-            ))}
+            {programUpdateFields.map((field, index) => {
+              return (
+                <RenderFormField
+                  key={index}
+                  index={index}
+                  field={field}
+                  control={control}
+                  errors={errors}
+                />
+              );
+            })}
           </form>
         </Box>
       </CustomDrawer>

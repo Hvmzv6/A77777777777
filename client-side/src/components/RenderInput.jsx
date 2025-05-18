@@ -12,7 +12,7 @@ import {
   TextField,
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Controller } from "react-hook-form";
 import { BiHide, BiShow } from "react-icons/bi";
 
@@ -33,32 +33,35 @@ const RenderInput = ({ field, control, errors = {} }) => {
           name={field.name}
           control={control}
           defaultValue=""
-          render={({ field: controllerField }) => (
-            <FormControl variant="outlined" fullWidth error={!!error}>
-              <InputLabel>{field.label}</InputLabel>
-              <OutlinedInput
-                {...controllerField}
-                fullWidth
-                type={field.type}
-                label={field.label}
-                sx={{
-                  backgroundColor: theme.palette.background.alt,
-                }}
-                placeholder={field.placeholder}
-              />
-              {error && (
-                <span
-                  style={{
-                    color: "red",
-                    fontSize: "0.75rem",
-                    marginTop: "4px",
+          render={({ field: controllerField }) => {
+            return (
+              <FormControl variant="outlined" fullWidth error={!!error}>
+                <InputLabel>{field.label}</InputLabel>
+                <OutlinedInput
+                  {...controllerField}
+                  fullWidth
+                  type={field.type}
+                  label={field.label}
+                  sx={{
+                    backgroundColor: theme.palette.background.alt,
                   }}
-                >
-                  {error}
-                </span>
-              )}
-            </FormControl>
-          )}
+                  placeholder={field.placeholder}
+                  disabled={field.disabled}
+                />
+                {error && (
+                  <span
+                    style={{
+                      color: "red",
+                      fontSize: "0.75rem",
+                      marginTop: "4px",
+                    }}
+                  >
+                    {error}
+                  </span>
+                )}
+              </FormControl>
+            );
+          }}
         />
       );
 
@@ -72,6 +75,7 @@ const RenderInput = ({ field, control, errors = {} }) => {
             <FormControl variant="outlined" fullWidth error={!!error}>
               <InputLabel>{field.label}</InputLabel>
               <OutlinedInput
+                disabled={field.disabled}
                 {...controllerField}
                 type={showPassword ? "text" : "password"}
                 placeholder={field.placeholder}
@@ -115,6 +119,7 @@ const RenderInput = ({ field, control, errors = {} }) => {
               control={
                 <Checkbox
                   {...controllerField}
+                  disabled={field.disabled}
                   checked={controllerField.value}
                   sx={{ color: "white" }}
                 />
@@ -138,6 +143,7 @@ const RenderInput = ({ field, control, errors = {} }) => {
                 {...controllerField}
                 placeholder={field.placeholder}
                 minRows={6}
+                disabled={field.disabled}
                 style={{
                   width: "100%",
                   padding: "1rem",
@@ -174,6 +180,7 @@ const RenderInput = ({ field, control, errors = {} }) => {
               <InputLabel>{field.label}</InputLabel>
               <Select
                 {...controllerField}
+                disabled={field.disabled}
                 displayEmpty
                 sx={{
                   backgroundColor: theme.palette.background.alt,
@@ -211,6 +218,7 @@ const RenderInput = ({ field, control, errors = {} }) => {
             <Autocomplete
               fullWidth
               options={field.options || []}
+              disabled={field.disabled}
               getOptionLabel={(option) =>
                 typeof option === "string" ? option : option.label
               }

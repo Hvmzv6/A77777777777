@@ -18,12 +18,7 @@ router.post(
   userController.registerUser
 );
 
-router.get(
-  "/users",
-  verifyToken,
-  requireRole("admin"), // Only admins can view all users
-  userController.getAllUsers
-);
+router.get("/users", verifyToken, userController.getAllUsers);
 
 router.get(
   "/users/:id",
