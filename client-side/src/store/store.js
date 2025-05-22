@@ -1,6 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./auth/authSlice";
 import globalReducer from "./global/slice";
+import notificationsReducer from "./notification/slice";
 import participantsReducer from "./participants/slice";
 import themeReducer from "./theme/slice";
 import trainingReducer from "./training/slice";
@@ -14,6 +15,7 @@ const store = configureStore({
     training: trainingReducer,
     themeReducer: themeReducer,
     participantsReducer: participantsReducer,
+    notificationsReducer: notificationsReducer,
   },
   middleware: (getDefaultMiddleware) => {
     return [

@@ -1,12 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
-import SideMenu from "../components/SideMenu";
-import NavBar from "../components/NavBar";
 import DashContainer from "../components/DashContainer";
+import NavBar from "../components/NavBar";
+import SideMenu from "../components/SideMenu";
 
 const Layout = () => {
   const [open, setOpen] = useState(true);
-  const drawerWidth = 140;
+  const drawerWidth = 190;
   const handleDrawerOpen = () => {
     setOpen(!open);
   };

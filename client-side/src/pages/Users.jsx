@@ -4,7 +4,6 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import CreateIcon from "@mui/icons-material/Create";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { Box, Chip, Typography } from "@mui/material";
-import React from "react";
 import CustomButton from "../components/CustomButton";
 import CustomDrawer from "../components/CustomDrawer";
 import CustomIconButton from "../components/CustomIconButton";
@@ -14,6 +13,7 @@ import CustomTable from "../components/CustomTable";
 import RenderFormField from "../components/RenderFormField";
 import { useUsers } from "../hooks/useUsers";
 import { deleteUser } from "../store/user/action";
+import { showToast } from "../utils/toastUtils";
 const userUpdateFields = [
   {
     name: "name",
@@ -33,16 +33,16 @@ const userUpdateFields = [
     type: "select",
     options: [
       {
-        label: "Admin",
-        value: "Admin",
+        label: "admin",
+        value: "admin",
       },
       {
-        label: "Trainer",
-        value: "Trainer",
+        label: "trainer",
+        value: "trainer",
       },
       {
-        label: "Company",
-        value: "Company",
+        label: "client",
+        value: "client",
       },
     ],
   },
@@ -335,6 +335,7 @@ const Users = () => {
               onClick={() => {
                 dispatch(deleteUser(selectedId));
                 handleClose();
+                showToast("user deleted successfully!", "warning");
               }}
             >
               delete

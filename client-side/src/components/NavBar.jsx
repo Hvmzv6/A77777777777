@@ -94,9 +94,7 @@ const NavBar = ({ drawerWidth, open, handleDrawerOpen }) => {
           <Typography
             sx={{ color: theme.palette.neutral.contrastText }}
             variant="h4"
-          >
-            Menu
-          </Typography>
+          ></Typography>
         </div>
         <div className="flex gap-2 items-center">
           <DarkModeButton />

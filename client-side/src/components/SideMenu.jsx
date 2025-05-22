@@ -155,7 +155,7 @@ const SideMenu = ({ open, drawerWidth }) => {
           boxSizing: "border-box",
         },
         "& .MuiPaper-root": {
-          borderTopRightRadius: "2rem",
+          borderTopRightRadius: "0rem",
         },
       }}
       variant="persistent"
@@ -163,14 +163,15 @@ const SideMenu = ({ open, drawerWidth }) => {
       open={open}
     >
       <DrawerHeader sx={{ flexDirection: "column", gap: 2 }}>
-        <img src={logo} alt="logo" width={70} />
+        <img src={logo} alt="logo" width={80} />
       </DrawerHeader>
       <List
         className="custom-scrollbar"
         sx={{
-          p: 2,
-          flexDirection: "column",
-          alignItems: "center",
+          p: 3,
+          flexDirection: "auto",
+
+          alignItems: "space-between",
           justifyContent: "center",
           gap: 5,
           overflowY: "auto",

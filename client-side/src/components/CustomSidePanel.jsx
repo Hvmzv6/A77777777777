@@ -1,5 +1,4 @@
 import { Box, useTheme } from "@mui/material";
-import React from "react";
 
 const CustomSidePanel = ({ children }) => {
   const theme = useTheme();
@@ -8,7 +7,7 @@ const CustomSidePanel = ({ children }) => {
       sx={{
         width: "30%",
         padding: "20px",
-        borderRadius: "10px",
+        //borderRadius: "10px",
         backgroundColor: theme.palette.background.alt,
         boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
         display: "flex",

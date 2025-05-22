@@ -5,7 +5,7 @@ import Spinner from "../components/Spinner";
 import Layout from "./Layout";
 
 const routesByRole = {
-  Admin: [
+  admin: [
     {
       path: "/dashboard",
       element: React.lazy(() => import("./dashboards/AdminDashboard")),
@@ -36,7 +36,7 @@ const routesByRole = {
     },
   ],
 
-  Trainer: [
+  trainer: [
     {
       path: "/dashboard",
       element: React.lazy(() => import("./dashboards/TrainerDashboard")),
@@ -48,6 +48,10 @@ const routesByRole = {
     {
       path: "/logout",
       element: React.lazy(() => import("../components/Logout")),
+    },
+    {
+      path: "/trainer-notifications",
+      element: React.lazy(() => import("./Notifications")),
     },
   ],
   client: [
@@ -62,6 +66,10 @@ const routesByRole = {
     {
       path: "/logout",
       element: React.lazy(() => import("../components/Logout")),
+    },
+    {
+      path: "/client-notifications",
+      element: React.lazy(() => import("./Notifications")),
     },
   ],
 };

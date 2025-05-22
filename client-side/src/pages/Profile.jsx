@@ -2,7 +2,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Typography, useTheme } from "@mui/material";
 import { jwtDecode } from "jwt-decode"; // Correct import
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useDispatch, useSelector } from "react-redux";
 import { z } from "zod";
@@ -30,7 +30,7 @@ const userFields = [
 ];
 // Validation schema with Zod
 const profileSchema = z.object({
-  username: z.string().min(4, "Username must be at least 4 characters."),
+  fullName: z.string().min(4, "Username must be at least 4 characters."),
   email: z.string().email("Invalid email address."),
 });
 
@@ -85,10 +85,10 @@ const Profile = () => {
   // Pre-fill user data
   useEffect(() => {
     if (data.length) {
-      const user = data.find((item) => item.id === userId);
+      const user = data.find((item) => item._id === userId);
       setUser(user);
       if (user) {
-        setValue("name", user.name);
+        setValue("name", user.fullName);
         setValue("email", user.email);
       }
     }
@@ -113,7 +113,7 @@ const Profile = () => {
   return (
     <div className="flex flex-col gap-10">
       <Typography variant="h3" width={"80%"}>
-        Personal Intraining
+        hello {user.fullName}, update your profile
       </Typography>
       <Box
         sx={{

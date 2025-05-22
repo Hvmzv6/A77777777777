@@ -10,6 +10,8 @@ const userRoutes = require("./routes/userRoutes");
 const trainingRoutes = require("./routes/trainingRoutes");
 const themeRoutes = require("./routes/themeRoutes");
 const participantsRoutes = require("./routes/participantRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const startNotificationWatcher = require("./changeStreams/notificationWatcher");
 const { Server } = require("socket.io");
 
 dotenv.config();
@@ -24,6 +26,7 @@ const io = new Server(server, {
   },
 });
 connectDB();
+startNotificationWatcher();
 
 app.use(express.json());
 
@@ -47,6 +50,7 @@ app.use("/api/", userRoutes);
 app.use("/api/", trainingRoutes);
 app.use("/api/", themeRoutes);
 app.use("/api/", participantsRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/attestations", attestationRoutes);
 
 const port = process.env.PORT || 5000;

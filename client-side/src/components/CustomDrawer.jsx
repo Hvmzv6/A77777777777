@@ -32,8 +32,8 @@ const CustomDrawer = ({
       onClose={onClose}
       sx={{
         "& .MuiPaper-root": {
-          borderTopLeftRadius: "2rem",
-          borderBottomLeftRadius: "2rem",
+          borderTopLeftRadius: "4rem",
+          borderBottomLeftRadius: "4rem",
         },
         ...sx,
         display: "flex",

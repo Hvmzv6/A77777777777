@@ -53,7 +53,7 @@ const Login = () => {
 
   const onSubmit = async (values) => {
     try {
-      const response = await fetch(`http://Localhost:5000/api/auth/login`, {
+      const response = await fetch(`http://localhost:5000/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,6 +63,7 @@ const Login = () => {
           password: values.password,
         }),
       });
+      console.log("🚀 ~ onSubmit ~ response:", response);
 
       if (!response.ok) {
         throw new Error("Invalid credentials");
@@ -85,11 +86,11 @@ const Login = () => {
       // dispatch(login({ token, role }));
 
       // Redirect based on role
-      if (role === "Admin") {
+      if (role === "admin") {
         navigate("/dashboard");
-      } else if (role === "Trainer") {
+      } else if (role === "trainer") {
         navigate("/dashboard");
-      } else if (role === "Company") {
+      } else if (role === "client") {
         navigate("/dashboard");
       } else {
         navigate("/dashboard");

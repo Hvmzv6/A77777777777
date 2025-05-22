@@ -42,11 +42,10 @@ const createTraining = async (req, res) => {
       clientPhone,
       participants,
     });
-
     const savedTraining = await newTraining.save();
 
-    // Notify admins about new training request
-    const io = req.app.get("socketio");
+    // Notify all admins about new training request
+    const io = req.app.get("io");
     io.to("admin").emit("newTrainingRequest", {
       _id: savedTraining._id,
       ref: savedTraining.ref,
@@ -54,10 +53,28 @@ const createTraining = async (req, res) => {
       trainer: savedTraining.trainer,
       client: savedTraining.client,
       status: savedTraining.status,
-      timestamp: new Date(),
       message: `New training request: ${savedTraining.title}`,
+      timestamp: new Date(),
     });
-
+    // ...after saving new training by trainer...
+    // Notify the trainer about the new training request
+    io.to("admin").emit("trainerAddedProgram", {
+      _id: savedTraining._id,
+      ref: savedTraining.ref,
+      title: savedTraining.title,
+      trainer: savedTraining.trainer,
+      client: savedTraining.client,
+      message: `Trainer added a new program: ${savedTraining.title}`,
+      timestamp: new Date(),
+    });
+    io.to(savedTraining.client.toString()).emit("trainerAddedProgram", {
+      _id: savedTraining._id,
+      ref: savedTraining.ref,
+      title: savedTraining.title,
+      trainer: savedTraining.trainer,
+      message: `A new program "${savedTraining.title}" has been added for you.`,
+      timestamp: new Date(),
+    });
     res.status(201).json({
       message: "Training request created successfully",
       training: savedTraining,
@@ -135,8 +152,6 @@ const approveTraining = async (req, res) => {
     training.approved = true;
     training.status = "confirmed";
     await training.save();
-
-    // Notify client about approved training
     const io = req.app.get("io");
     io.to(training.client.toString()).emit("trainingStatusUpdate", {
       _id: training._id,
@@ -147,7 +162,6 @@ const approveTraining = async (req, res) => {
       message: `Your training request "${training.title}" has been approved.`,
       timestamp: new Date(),
     });
-
     res.json(training);
   } catch (err) {
     console.error("Error approving training:", err);

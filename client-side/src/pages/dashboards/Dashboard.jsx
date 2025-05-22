@@ -8,11 +8,11 @@ const Dashboard = () => {
 
   const renderContent = () => {
     switch (userRole) {
-      case "Admin":
+      case "admin":
         return <AdminDashboard />;
-      case "Trainer":
+      case "trainer":
         return <TrainerDashboard />;
-      case "Company":
+      case "client":
         return <CompanyDashboard />;
     }
   };

@@ -1,65 +1,56 @@
-import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import socket from "../socket";
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import io from "socket.io-client";
+import {
+  createNotification,
+  fetchNotifications,
+} from "../store/notification/action";
+
+// Initialize socket connection (single instance)
+const socket = io("http://localhost:5000", {
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 1000,
+});
+
 export const useSocket = () => {
-  const [notifications, setNotifications] = useState([]);
   const dispatch = useDispatch();
-  const userId = localStorage.getItem("userId");
-  const role = localStorage.getItem("userRole");
+  const { user } = useSelector((state) => state.auth);
 
-  // Initialize socket connection
   useEffect(() => {
-    if (!userId) return;
+    if (!user?._id) return;
 
-    // Connect to socket server
+    // Define notification handler based on user role
+    const handleNotification = (data) => {
+      console.log("Notification received:", data);
+      dispatch(createNotification(data));
+      // Refresh notifications list
+      dispatch(fetchNotifications(user._id));
+    };
 
-    // Listen for different events based on role
-    // if (user.role === "admin") {
-    //   socket.on("newTrainingRequest", (data) => {
-    //     console.log("New training request received:", data);
-    //     setNotifications((prev) => [data, ...prev]);
-    //     // Refresh training list
-    //     dispatch(getTraining());
-    //   });
-    // } else {
-    //   socket.on("trainingStatusUpdate", (data) => {
-    //     console.log("Training status update received:", data);
-    //     setNotifications((prev) => [data, ...prev]);
-    //     // Refresh training list
-    //     dispatch(getTraining());
-    //   });
-    // }
-  }, [userId, role, dispatch]);
+    // Listen for events based on role
+    if (user.role === "admin") {
+      socket.on("newTrainingRequest", handleNotification);
+    } else {
+      socket.on("trainingStatusUpdate", handleNotification);
+    }
 
-  // Mark notification as read
-  const markAsRead = (notificationId) => {
-    setNotifications((prev) =>
-      prev.map((notification) =>
-        notification._id === notificationId
-          ? { ...notification, read: true }
-          : notification
-      )
-    );
-  };
+    // General notification event for all users
+    socket.on("newNotification", handleNotification);
 
-  // Clear a notification
-  const clearNotification = (notificationId) => {
-    setNotifications((prev) =>
-      prev.filter((notification) => notification._id !== notificationId)
-    );
-  };
+    // Emit user connection event to server
+    socket.emit("userConnected", { userId: user._id, role: user.role });
 
-  // Clear all notifications
-  const clearAllNotifications = () => {
-    setNotifications([]);
-  };
+    // Cleanup on unmount or user change
+    return () => {
+      if (user.role === "admin") {
+        socket.off("newTrainingRequest", handleNotification);
+      } else {
+        socket.off("trainingStatusUpdate", handleNotification);
+      }
+      socket.off("newNotification", handleNotification);
+    };
+  }, [dispatch, user?._id, user?.role]);
 
-  return {
-    socket,
-    notifications,
-    unreadCount: notifications.filter((n) => !n.read).length,
-    markAsRead,
-    clearNotification,
-    clearAllNotifications,
-  };
+  return { socket };
 };

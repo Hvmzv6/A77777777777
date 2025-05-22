@@ -15,22 +15,33 @@ import {
   Typography,
 } from "@mui/material";
 import { format } from "date-fns";
-import React from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useSocket } from "../hooks/useSocket";
+import { useNotification } from "../hooks/useNotification";
 import { approveTraining, declineTraining } from "../store/training/action";
 
 const Notifications = () => {
   const [open, setOpen] = React.useState(false);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.auth);
+
   const {
     notifications,
     unreadCount,
+    loading,
+    error,
     markAsRead,
     clearNotification,
     clearAllNotifications,
-  } = useSocket();
+    loadNotifications,
+  } = useNotification();
+
+  useEffect(() => {
+    // Refresh notifications when drawer opens
+    if (open) {
+      loadNotifications();
+    }
+  }, [open, loadNotifications]);
 
   const toggleDrawer = (newOpen) => () => {
     setOpen(newOpen);
@@ -38,16 +49,18 @@ const Notifications = () => {
 
   const handleApprove = (trainingId) => {
     dispatch(approveTraining(trainingId));
-    clearNotification(trainingId);
+    // Mark notification as read after approving
+    markAsRead(trainingId);
   };
 
   const handleDecline = (trainingId) => {
     dispatch(declineTraining(trainingId));
-    clearNotification(trainingId);
+    // Mark notification as read after declining
+    markAsRead(trainingId);
   };
 
   const handleNotificationClick = (notification) => {
-    if (!notification.read) {
+    if (!notification.isRead) {
       markAsRead(notification._id);
     }
   };
@@ -59,6 +72,7 @@ const Notifications = () => {
           <NotificationsIcon />
         </Badge>
       </IconButton>
+
       <Drawer anchor="right" open={open} onClose={toggleDrawer(false)}>
         <Box sx={{ width: 350, p: 2 }}>
           <Box
@@ -75,7 +89,19 @@ const Notifications = () => {
             </IconButton>
           </Box>
 
-          {notifications.length > 0 ? (
+          {loading ? (
+            <Typography variant="body2" sx={{ textAlign: "center", p: 2 }}>
+              Loading notifications...
+            </Typography>
+          ) : error ? (
+            <Typography
+              variant="body2"
+              color="error"
+              sx={{ textAlign: "center", p: 2 }}
+            >
+              Error loading notifications: {error}
+            </Typography>
+          ) : notifications.length > 0 ? (
             <>
               <Button
                 onClick={clearAllNotifications}
@@ -85,13 +111,14 @@ const Notifications = () => {
               >
                 Clear All
               </Button>
+
               <List>
                 {notifications.map((notification) => (
                   <React.Fragment key={notification._id || Math.random()}>
                     <ListItem
                       onClick={() => handleNotificationClick(notification)}
                       sx={{
-                        backgroundColor: notification.read
+                        backgroundColor: notification.isRead
                           ? "transparent"
                           : "rgba(25, 118, 210, 0.08)",
                         cursor: "pointer",
@@ -112,14 +139,16 @@ const Notifications = () => {
                               {notification.title}
                             </Typography>
                             <Typography variant="caption" display="block">
-                              {notification.timestamp &&
+                              {notification.createdAt &&
                                 format(
-                                  new Date(notification.timestamp),
+                                  new Date(notification.createdAt),
                                   "MMM dd, yyyy HH:mm"
                                 )}
                             </Typography>
-                            {user.role === "admin" &&
-                              notification.status === "pending" && (
+
+                            {user &&
+                              user.role === "admin" &&
+                              notification.type === "trainingRequest" && (
                                 <Box sx={{ mt: 1, display: "flex", gap: 1 }}>
                                   <Button
                                     variant="contained"
@@ -128,7 +157,7 @@ const Notifications = () => {
                                     startIcon={<CheckCircleIcon />}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleApprove(notification._id);
+                                      handleApprove(notification.entityId);
                                     }}
                                   >
                                     Approve
@@ -140,13 +169,24 @@ const Notifications = () => {
                                     startIcon={<CancelIcon />}
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleDecline(notification._id);
+                                      handleDecline(notification.entityId);
                                     }}
                                   >
                                     Decline
                                   </Button>
                                 </Box>
                               )}
+
+                            <IconButton
+                              size="small"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                clearNotification(notification._id);
+                              }}
+                              sx={{ position: "absolute", top: 8, right: 8 }}
+                            >
+                              <CloseIcon fontSize="small" />
+                            </IconButton>
                           </>
                         }
                       />

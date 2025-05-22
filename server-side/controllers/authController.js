@@ -5,7 +5,7 @@ const User = require("../models/userModel");
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email });
     if (!user) return res.status(401).json({ msg: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, user.password);

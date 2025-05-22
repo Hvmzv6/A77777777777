@@ -24,9 +24,8 @@ const Programs = () => {
   const {
     loading,
 
-    drawerUpdateOpen,
     openUpdateDrawer,
-    closeUpdateDrawer,
+
     onSubmit,
     control,
     handleSubmit,

@@ -10,7 +10,7 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    // marginLeft: -140,
+    marginLeft: 0,
 
     variants: [
       {
@@ -20,7 +20,7 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
             easing: theme.transitions.easing.easeOut,
             duration: theme.transitions.duration.enteringScreen,
           }),
-          marginLeft: 140,
+          marginLeft: 190,
         },
       },
     ],
